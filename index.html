@@ -7,20 +7,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="light-mode">
     <header>
-        <div class="logo">
-            <i class="fas fa-music"></i>
-            <span>SMS|Some Music Source</span>
-        </div>
+<div class="logo">
+    <img src="logo.png" alt="SMS Logo" class="logo-img">
+    <span>S.M.S| Saka Muchaita Sei?</span>
+</div>
         <nav>
-            <P>Spotify MUSIC Playlist BY PYNE APP</P>
+            <p>Spotify MUSIC Playlist BY PYNE APP</p>
+            <button id="theme-toggle" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
         </nav>
-
     </header>
 
     <main>
-
         <section class="featured-tracks">
             <h2 class="section-title">NEW RELEASES</h2>
             <div class="tracks-grid">
@@ -110,9 +111,21 @@
                 </div>
             </div>
         </section>
+
+      <h2 class="section-title">Daily Mix 1</h2>
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1E39u31q8cDYre?utm_source=generator" 
+           width="100%" height="352" frameBorder="0" allowfullscreen="" 
+           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+        </iframe>
+
+     <h2 class="section-title">Daily Mix 2</h2>
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1E35Cz4KTHYO69?utm_source=generator&theme=0" 
+          width="100%" height="352" frameBorder="0" allowfullscreen="" 
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"> 
+        </iframe>
+
+    
     </main>
-
-
     <script src="script.js"></script>
 </body>
 </html>
