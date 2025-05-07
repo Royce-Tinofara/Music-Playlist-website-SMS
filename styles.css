@@ -4,7 +4,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
+    /* Removed global transition for performance, apply specifically */
 }
 
 /* Light Mode Variables */
@@ -13,34 +13,81 @@
     --secondary-color: #a29bfe;
     --text-color: #2d3436;
     --bg-color: #f5f6fa;
-    --card-bg: white;
+    --card-bg: rgba(255, 255, 255, 0.85); /* Slightly transparent for backdrop to work if video is subtle */
+    --card-border: rgba(0,0,0,0.1);
     --success-color: #00b894;
     --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --overlay-color: rgba(0, 0, 0, 0.3); /* For video overlay in light mode */
+    --button-hover-bg: rgba(255, 255, 255, 0.2);
+    --body-text-color: #333;
+    --section-title-color: var(--primary-color);
 }
 
 /* Dark Mode Variables */
 .dark-mode {
-    --primary-color: #4ef830;
+    --primary-color: #4ef830; /* Keep vibrant for dark mode too, or choose another accent */
     --secondary-color: #6c5ce7;
-    --text-color: #f5f6fa;
+    --text-color: #f5f6fa; /* General text on dark bg */
     --bg-color: #1a1a1a;
-    --card-bg: #2d3436;
+    --card-bg: rgba(45, 52, 54, 0.85); /* Darker, slightly transparent */
+    --card-border: rgba(255,255,255,0.1);
     --success-color: #00b894;
     --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --overlay-color: rgba(0, 0, 0, 0.5); /* Darker overlay for dark mode to ensure contrast */
+    --button-hover-bg: rgba(0, 0, 0, 0.3);
+    --body-text-color: #e0e0e0;
+    --section-title-color: var(--primary-color);
 }
 
 body {
     background-color: var(--bg-color);
-    color: var(--text-color);
+    color: var(--body-text-color); /* Changed from --text-color to be more specific for body text */
     line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
 }
+
+/* Video Background & Overlay */
+#video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* Behind overlay and content */
+    overflow: hidden;
+}
+
+#video-background {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    /* Opacity is removed here, controlled by overlay or direct content backgrounds */
+}
+
+#video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+    z-index: -1; /* Above video, behind content */
+    transition: background-color 0.3s;
+}
+
 
 /* Header Styles */
 header {
     background: var(--header-gradient);
-    color: white;
+    color: white; /* Text color for header elements */
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -48,25 +95,24 @@ header {
     box-shadow: 0 4px 12px var(--shadow-color);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000; /* Ensure header is above other content */
+    transition: background 0.3s, box-shadow 0.3s;
 }
 
 .logo-img {
-    height: 90px; /* Adjust based on your logo's proportions */
+    height: 70px; /* Slightly reduced for a sleeker look */
     width: auto;
     margin-right: 10px;
+    vertical-align: middle; /* Better alignment with text */
 }
 
 .logo {
     display: flex;
     align-items: center;
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* Adjusted size */
     font-weight: bold;
-    gap: 10px; /* Adds consistent spacing between logo image and text */
-}
-.logo i {
-    margin-right: 10px;
-    color: var(--success-color);
+    gap: 10px;
+    color: white; /* Ensure logo text is white */
 }
 
 nav {
@@ -75,11 +121,17 @@ nav {
     gap: 1rem;
 }
 
+nav .tagline {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    color: white; /* Ensure tagline text is white */
+}
+
 .theme-toggle {
     background: none;
-    border: none;
+    border: 2px solid white; /* Added border for better visibility */
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Adjusted size */
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
@@ -88,74 +140,156 @@ nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
 }
 
 .theme-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--button-hover-bg);
+    transform: scale(1.1);
+}
+.theme-toggle:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 /* Main Content */
 main {
     padding: 2rem;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 2rem auto; /* Added top margin */
+    position: relative; /* Ensure main is above video stuff */
+    z-index: 1;
+}
+
+.tracks-section, .playlist-section {
+    margin-bottom: 3rem; /* Space between sections */
 }
 
 .section-title {
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    color: var(--primary-color);
+    font-size: 1.8rem; /* Slightly larger */
+    color: var(--section-title-color); /* Use variable */
     position: relative;
     padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--success-color); /* Alternative underline style */
+    display: inline-block; /* So border only spans text */
 }
+/* Removed ::after pseudo-element for underline, direct border is simpler */
 
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background-color: var(--success-color);
-}
 
 /* Tracks Grid */
 .tracks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Slightly larger min for track cards */
+    gap: 2rem; /* Increased gap */
 }
 
 .track-card {
     background-color: var(--card-bg);
-    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px; /* Consistent with iframe radius */
     overflow: hidden;
-    box-shadow: 0 4px 15px var(--shadow-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 18px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s, border-color 0.3s;
+    backdrop-filter: blur(5px); /* Keep if desired, ensure card-bg has alpha */
+    -webkit-backdrop-filter: blur(5px); /* For Safari */
 }
 
 .track-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px var(--shadow-color);
+    transform: translateY(-8px) scale(1.02); /* Enhanced hover */
+    box-shadow: 0 10px 25px var(--shadow-color);
 }
 
 .track-info {
-    padding: 1rem;
+    padding: 0; /* Remove padding if iframe takes full space */
+    /* If you add H3/P for title/artist, add padding back: padding: 1rem; */
 }
+
+.track-info iframe {
+    display: block; /* Removes any bottom space under iframe */
+}
+
+/* For full width playlist embeds */
+.playlist-section iframe {
+    height: 380px; /* Default height for playlist embeds */
+}
+/* Adjust height for compact playlist embeds if needed */
+.dark-mode .spotify-embed iframe { /* For future if you need to target only spotify iframes in dark mode */
+    /* Potentially specific dark mode styles for iframes if theme param isn't enough */
+}
+
+
+/* Back to Top Button */
+#back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    cursor: pointer;
+    display: none; /* Hidden by default, shown by JS */
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: background-color 0.3s, opacity 0.3s, visibility 0.3s, transform 0.2s ease;
+}
+
+#back-to-top:hover {
+    background-color: var(--success-color);
+    transform: scale(1.1);
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
         padding: 1rem;
+        text-align: center;
+    }
+
+    .logo {
+        font-size: 1.3rem; /* Adjust logo size */
+    }
+    .logo-img {
+        height: 60px;
     }
 
     nav {
         margin-top: 1rem;
+        flex-direction: column; /* Stack nav items */
+        gap: 0.5rem;
+    }
+
+    main {
+        padding: 1.5rem;
+        margin-top: 1rem;
     }
 
     .tracks-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust for smaller screens */
+        gap: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tracks-grid {
+        grid-template-columns: 1fr; /* Single column on very small screens */
+    }
+    .logo {
+        font-size: 1.2rem;
+    }
+    .logo-img {
+        height: 50px;
     }
 }

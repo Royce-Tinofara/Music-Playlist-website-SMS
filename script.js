@@ -1,53 +1,100 @@
-// Theme Toggle Functionality
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const backToTopButton = document.getElementById('back-to-top');
 
-// Check for saved theme preference or use preferred color scheme
-const savedTheme = localStorage.getItem('theme') || 
-                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-body.classList.add(`${savedTheme}-mode`);
-updateThemeIcon(savedTheme);
-
-// Toggle theme on button click
-themeToggle.addEventListener('click', () => {
-    if (body.classList.contains('light-mode')) {
-        body.classList.replace('light-mode', 'dark-mode');
-        localStorage.setItem('theme', 'dark');
-        updateThemeIcon('dark');
-    } else {
-        body.classList.replace('dark-mode', 'light-mode');
-        localStorage.setItem('theme', 'light');
-        updateThemeIcon('light');
-    }
-});
-
-// Update theme toggle icon based on current theme
-function updateThemeIcon(theme) {
-    const icon = themeToggle.querySelector('i');
-    if (theme === 'dark') {
-        icon.classList.replace('fa-moon', 'fa-sun');
-    } else {
-        icon.classList.replace('fa-sun', 'fa-moon');
-    }
-}
-
-// Set Spotify iframe theme based on current theme
-function setSpotifyTheme() {
-    const iframes = document.querySelectorAll('iframe[src*="spotify.com"]');
-    iframes.forEach(iframe => {
-        const src = iframe.src;
-        if (body.classList.contains('dark-mode')) {
-            iframe.src = src.includes('theme=0') ? src.replace('theme=0', 'theme=1') : 
-                          src.includes('?') ? `${src}&theme=1` : `${src}?theme=1`;
+    // --- Theme Management ---
+    // Function to apply theme and save preference
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
         } else {
-            iframe.src = src.includes('theme=1') ? src.replace('theme=1', 'theme=0') : 
-                          src.includes('?') ? `${src}&theme=0` : `${src}?theme=0`;
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+        }
+        localStorage.setItem('theme', theme);
+        updateThemeIcon(theme);
+        setSpotifyEmbedThemes(theme);
+    }
+
+    // Update theme toggle icon based on current theme
+    function updateThemeIcon(theme) {
+        const icon = themeToggle.querySelector('i');
+        if (theme === 'dark') {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+            themeToggle.setAttribute('aria-label', 'Toggle light mode');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+        }
+    }
+
+    // Set Spotify iframe themes
+    function setSpotifyEmbedThemes(theme) {
+        const iframes = document.querySelectorAll('iframe[src*="open.spotify.com/embed"]');
+        const spotifyThemeValue = (theme === 'dark') ? '1' : '0'; // 0 for light, 1 for dark
+
+        iframes.forEach(iframe => {
+            let currentSrc = iframe.src;
+            // Remove existing theme parameter if present
+            currentSrc = currentSrc.replace(/&theme=[01]/, '').replace(/\?theme=[01](&)?/, '?');
+
+            // Add the new theme parameter
+            if (currentSrc.includes('?')) {
+                // If other parameters exist (like utm_source)
+                if (currentSrc.endsWith('?')) {
+                     currentSrc += `theme=${spotifyThemeValue}`;
+                } else {
+                    currentSrc += `&theme=${spotifyThemeValue}`;
+                }
+            } else {
+                currentSrc += `?theme=${spotifyThemeValue}`;
+            }
+            
+            // Only reload iframe if src actually changed to prevent unnecessary reloads
+            if (iframe.src !== currentSrc) {
+                iframe.src = currentSrc;
+            }
+        });
+    }
+
+    // Initialize theme
+    // Prefers localStorage, then system preference, then defaults to light
+    let currentTheme = localStorage.getItem('theme');
+    if (!currentTheme) {
+        currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    applyTheme(currentTheme); // Apply initial theme
+
+    // Toggle theme on button click
+    themeToggle.addEventListener('click', () => {
+        const newTheme = body.classList.contains('light-mode') ? 'dark' : 'light';
+        applyTheme(newTheme);
+    });
+
+
+    // --- Back to Top Button Functionality ---
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) { // Show button after scrolling 300px
+            if(backToTopButton) backToTopButton.style.display = "flex";
+        } else {
+            if(backToTopButton) backToTopButton.style.display = "none";
         }
     });
-}
 
-// Call this function whenever theme changes
-themeToggle.addEventListener('click', setSpotifyTheme);
+    if(backToTopButton) {
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 
-// Initialize Spotify iframe themes on page load
-setSpotifyTheme();
+    // Initial call to set Spotify themes on page load, after a slight delay for iframes to register
+    // This is sometimes needed if iframes are loaded lazily or script runs too fast.
+    setTimeout(() => {
+        setSpotifyEmbedThemes(body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }, 100); 
+
+});
