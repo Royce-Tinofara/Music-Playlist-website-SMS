@@ -98,3 +98,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100); 
 
 });
+// Add this to your existing script.js
+function handleMobileFeatures() {
+    // Detect if mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Disable video autoplay on mobile (many mobile browsers block it anyway)
+        const videoBg = document.getElementById('video-background');
+        if (videoBg) {
+            videoBg.removeAttribute('autoplay');
+            videoBg.pause();
+        }
+        
+        // Add touch-specific hover effects
+        document.querySelectorAll('.track-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.classList.add('touch-active');
+            });
+            
+            card.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    this.classList.remove('touch-active');
+                }, 200);
+            });
+        });
+    }
+}
+
+// Call this function in your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', () => {
+    // Your existing code...
+    handleMobileFeatures();
+});
