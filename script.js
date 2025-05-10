@@ -131,3 +131,81 @@ document.addEventListener('DOMContentLoaded', () => {
     // Your existing code...
     handleMobileFeatures();
 });
+document.addEventListener('DOMContentLoaded', () => {
+    // Store all audio iframes
+    const audioIframes = document.querySelectorAll('.track-info iframe');
+    let currentlyPlayingIframe = null;
+
+    // Function to pause all iframes except the current one
+    function pauseOtherIframes(currentIframe) {
+        audioIframes.forEach(iframe => {
+            if (iframe !== currentIframe && iframe.contentWindow) {
+                // Different methods for different providers
+                try {
+                    // Spotify
+                    if (iframe.src.includes('spotify.com')) {
+                        iframe.contentWindow.postMessage({command: 'pause'}, 'https://open.spotify.com');
+                    }
+                    // Apple Music
+                    else if (iframe.src.includes('music.apple.com')) {
+                        iframe.contentWindow.postMessage({action: 'pause'}, 'https://embed.music.apple.com');
+                    }
+                    // Other providers (Audiomack, Deezer, etc.)
+                    else {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const audioElements = iframeDoc.querySelectorAll('audio, video');
+                        audioElements.forEach(audio => audio.pause());
+                    }
+                } catch (e) {
+                    console.log('Could not control iframe:', e);
+                }
+            }
+        });
+    }
+
+    // Listen for play events on all iframes
+    audioIframes.forEach(iframe => {
+        // Add click handler to track cards
+        iframe.closest('.track-card').addEventListener('click', () => {
+            if (currentlyPlayingIframe === iframe) {
+                currentlyPlayingIframe = null;
+            } else {
+                currentlyPlayingIframe = iframe;
+                pauseOtherIframes(iframe);
+            }
+        });
+
+        // Listen for messages from iframes (for providers that support it)
+        window.addEventListener('message', (e) => {
+            // Spotify play events
+            if (e.origin === 'https://open.spotify.com' && e.data.type === 'playback_update') {
+                if (e.data.data.isPlaying) {
+                    currentlyPlayingIframe = iframe;
+                    pauseOtherIframes(iframe);
+                }
+            }
+            // Apple Music play events
+            else if (e.origin === 'https://embed.music.apple.com' && e.data.action === 'play') {
+                currentlyPlayingIframe = iframe;
+                pauseOtherIframes(iframe);
+            }
+        });
+    });
+
+    // Periodically check for playing state (fallback)
+    setInterval(() => {
+        audioIframes.forEach(iframe => {
+            try {
+                // This works for some embedded players
+                if (iframe.contentWindow && iframe.contentWindow.document.querySelector('audio:playing, video:playing')) {
+                    if (iframe !== currentlyPlayingIframe) {
+                        currentlyPlayingIframe = iframe;
+                        pauseOtherIframes(iframe);
+                    }
+                }
+            } catch (e) {
+                // Cross-origin restrictions may prevent this
+            }
+        });
+    }, 1000);
+});
