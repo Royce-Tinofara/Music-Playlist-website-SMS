@@ -11,12 +11,12 @@
 :root {
     --primary-color: #4ef830;
     --secondary-color: #a29bfe;
-    --text-color: #2d3436;
+    --text-color: #000000;
     --bg-color: #f5f6fa;
     --card-bg: rgba(255, 255, 255, 0.85); /* Slightly transparent for backdrop to work if video is subtle */
     --card-border: rgba(0,0,0,0.1);
     --success-color: #00b894;
-    --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --header-gradient: rgb(16, 224, 251);
     --shadow-color: rgba(0, 0, 0, 0.1);
     --overlay-color: rgba(0, 0, 0, 0.3); /* For video overlay in light mode */
     --button-hover-bg: rgba(255, 255, 255, 0.2);
@@ -33,7 +33,7 @@
     --card-bg: rgba(45, 52, 54, 0.85); /* Darker, slightly transparent */
     --card-border: rgba(255,255,255,0.1);
     --success-color: #00b894;
-    --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --header-gradient: rgb(3, 3, 51);
     --shadow-color: rgba(0, 0, 0, 0.4);
     --overlay-color: rgba(0, 0, 0, 0.5); /* Darker overlay for dark mode to ensure contrast */
     --button-hover-bg: rgba(0, 0, 0, 0.3);
@@ -292,4 +292,24 @@ main {
     .logo-img {
         height: 50px;
     }
+}
+footer{
+    background-color:rgb(3, 3, 51);
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+}
+.social-icons {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+}
+
+.social-icons li {
+    margin: 0 10px;
+}
+
+.social-icons img {
+    width: 30px; 
 }
